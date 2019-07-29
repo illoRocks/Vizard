@@ -1,0 +1,21 @@
+Package: Vizard
+Title: Vizard
+Version: 0.0.0.9000
+Authors@R: person('Oliver', 'Haag', email = 'oliver_haag@gmx.net', role = c('cre', 'aut'))
+Description: What the package does (one paragraph).
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Imports: 
+    shiny,
+    golem,
+    processx,
+    attempt,
+    DT,
+    glue,
+    htmltools,
+    ggplot2,
+    gridExtra
+RoxygenNote: 6.1.1
+Suggests: 
+    testthat
