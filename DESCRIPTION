@@ -15,7 +15,9 @@ Imports:
     glue,
     htmltools,
     ggplot2,
-    gridExtra
+    gridExtra,
+    purrr,
+    dplyr
 RoxygenNote: 6.1.1
 Suggests: 
     testthat

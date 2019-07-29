@@ -11,6 +11,7 @@ NULL
 #' @param score Score wich depand on params (same order)
 #'
 #' @return List of Variables
+#' 
 #'
 #' @export
 parse_arguments <- function(params, score) {
