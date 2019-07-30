@@ -14,7 +14,7 @@ Installation
 You can install the released version of Vizard from [CRAN](https://CRAN.R-project.org) with:
 
 ``` r
-install.packages("Vizard")
+remotes::install_github("illoRocks/Vizard")
 ```
 
 Example
@@ -23,29 +23,44 @@ Example
 This is a basic example which shows you how to solve a common problem:
 
 ``` r
+library(xgboost)
+library(tweakr)
+library(purrr)
 library(Vizard)
-#> Warning: replacing previous import 'dplyr::combine' by 'gridExtra::combine'
-#> when loading 'Vizard'
-## basic example code
+
+# load data ---------------------------------------------------------------
+data(agaricus.train, package = "xgboost")
+data(agaricus.test, package = "xgboost")
+
+# choose params -----------------------------------------------------------
+params <- paramize(
+  list(
+    eta.dbl = c(.01, .4),
+    max_depth.int = c(1, 3),
+    silent = 1, nthread = 2,
+    objective = "binary:logistic", eval_metric = "auc"
+  ),
+  search_len = 10,
+  search_method = "random"
+)
+
+params <- pmap(params, list)
+
+# train-function ----------------------------------------------------------
+
+train_xgb <- function(param, dtrain, dtest, ...) {
+  watchlist <- list(train = dtrain, eval = dtest)
+  xgb.train(param, dtrain, nrounds = 3, watchlist, ...)
+}
+
+# scores per param set ----------------------------------------------------
+dtrain <- xgb.DMatrix(agaricus.train$data, label = agaricus.train$label)
+dtest <- xgb.DMatrix(agaricus.test$data, label = agaricus.test$label)
+
+models <- map(params, train_xgb, dtrain = dtrain, dtest = dtest, early_stopping_rounds = 20)
+auc_scores <- map_dbl(models, "best_score")
+
+# visulize scores ---------------------------------------------------------
+parameter <- parse_arguments(params, auc_scores)
+run_app(parameters = parameter)
 ```
-
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
-
-``` r
-summary(cars)
-#>      speed           dist       
-#>  Min.   : 4.0   Min.   :  2.00  
-#>  1st Qu.:12.0   1st Qu.: 26.00  
-#>  Median :15.0   Median : 36.00  
-#>  Mean   :15.4   Mean   : 42.98  
-#>  3rd Qu.:19.0   3rd Qu.: 56.00  
-#>  Max.   :25.0   Max.   :120.00
-```
-
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date.
-
-You can also embed plots, for example:
-
-<img src="man/figures/README-pressure-1.png" width="100%" />
-
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub!
